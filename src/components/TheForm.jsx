@@ -1,165 +1,89 @@
 import { useState } from "react"
 
-export default function TheForm(){
-
-
+export default function TheForm(props){
+    
     const initialFormData = {
         title: "",
+        slug: "",
         image: "",
         content: "",
         category: "",
-        tags: []
+        tags: "",
     }
-
-    const [postList, setPostList] = useState([]);
 
     const [formData, setFormData] = useState(initialFormData)
 
-    function updateFormData(newValue, keyPosition, checked=false){
-        // clono l oggetto fromData
-        // usiamo lo spread per togliere quealsiasi riferimento allo state attuale
+    function updateFormData(newValue, keyPosition){
+
         const newFormData = {...formData};
-        // aggiorno la chiave
-        if(keyPosition === "tags"){
-            if(checked)
-            newFormData[keyPosition].push(newValue)
-            else{
-                const check = newFormData[keyPosition].indexOf(newValue)
-                newFormData[keyPosition].splice(check, 1)
-            }
-            
-        }else{
-            newFormData[keyPosition] = newValue;
-        }
+
+        newFormData[keyPosition] = newValue;
+
         // passo l oggetto modificato al setFormData
         setFormData(newFormData);
-        console.log(formData.tags)
     }
 
-    function handleFormSubmit(e){
-        // leviamo il refresh del form
+    async function handleFormSubmit(e){
+
         e.preventDefault();
-        // aggiungiamo il post
-        const newPostList = [ ...postList, formData];
-        // resetto il form
-        setPostList(newPostList);
-        setFormData(initialFormData);
-    }
 
-    function removePost(i){
-        
-        const newPostList = [...postList]
+        const response = await fetch("http://localhost:3000/posts", {
+            method: "post",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formData)
+        });
 
-        newPostList.splice(i, 1)
+        if(response.status === 200){
 
-        setPostList(newPostList)
+            setFormData(initialFormData)
+
+            props.setPosts([...props.posts, await response.json()])
+
+        }else{
+            alert("error")
+        }
+
+
+        // window.location.reload(false)
     }
 
     return(
+        <div className="container mx-auto pt-10 w-[600px]">
 
-            <div className="container mx-auto pt-10 w-[600px]">
-                <h1 className="text-center font-bold"> FORM </h1>
+            <h1 className="text-center font-bold"> FORM </h1>  
 
-                <form className="flex flex-col gap-4 mx-auto pt-10" action="" onSubmit={handleFormSubmit}>
+            <form action="" className="flex flex-col gap-4 mx-auto pt-10" onSubmit={handleFormSubmit}>
 
-                    <label className="block font-medium mb-2" htmlFor="title">Titolo</label>
-                    <input className="border p-4" type="text" id="title" name="title" placeholder="Insert title" 
-                        value={formData.title}
-                        onChange={(e) => updateFormData(e.target.value, 'title')}       
-                    />
+                <label htmlFor="title_input" className="block font-medium mb-2">Title</label>
+                <input type="text" value={formData.title} id="title_input" className="border p-4" placeholder="Insert Title"
+                    onChange={(e) => updateFormData(e.target.value, 'title')} />
 
-                    <label className="block font-medium mb-2" htmlFor="image">Image</label>
-                    <input className="border p-4" type="file" id="image" name="image"
-                        value={formData.image}
-                        onChange={(e) => updateFormData(e.target.value, 'image')}       
-                    />
+                <label htmlFor="slug_input" className="block font-medium mb-2">Slug</label>
+                <input type="text" value={formData.slug} id="slug_input" className="border p-4" placeholder="Insert Slug"
+                    onChange={(e) => updateFormData(e.target.value, 'slug')} />
 
-                    <label className="block font-medium mb-2" htmlFor="content">Content</label>
-                    <textarea className="border p-4"  id="content" name="content" placeholder="Content..." 
-                        value={formData.content}
-                        onChange={(e) => updateFormData(e.target.value, 'content')}       
-                    />
+                <label htmlFor="image_input" className="block font-medium mb-2">Image</label>
+                <input type="text" value={formData.image} id="image_input" className="border p-4" placeholder="Insert Image URL"
+                    onChange={(e) => updateFormData(e.target.value, 'image')} />
 
-                    <label className="block font-medium mb-2" htmlFor="content">Category</label>
-                    <select name="category" id="category"
-                        value={formData.category}
-                        onChange={(e) => updateFormData(e.target.value, 'category')}>
+                <label htmlFor="content_input" className="block font-medium mb-2">Content</label>
+                <textarea value={formData.content} name="content_input" id="content_input" cols="30" rows="10" className="border p-4" placeholder="Content..."
+                    onChange={(e) => updateFormData(e.target.value, 'content')} ></textarea>
 
-                        <option value="Training">Training</option>
-                        <option value="Game">Game</option>
-                        <option value="Sport">Sport</option>
-                        <option value="Gossip">Gossip</option>
+                <label htmlFor="category_input" className="block font-medium mb-2">Category</label>
+                <input type="text" value={formData.category} id="category_input" className="border p-4" placeholder="Insert Category"
+                    onChange={(e) => updateFormData(e.target.value, 'category')} />
 
-                    </select>
+                <label htmlFor="tags_input" className="block font-medium mb-2">Tags</label>
+                <input type="text" value={formData.tags} id="tags_input" className="border p-4" placeholder="Insert Tag"
+                    onChange={(e) => updateFormData(e.target.value, 'tags')} />
 
-                    <fieldset>
-                    <legend className="font-medium mb-2">Choose Tags:</legend>
+                <button className=" w-[100px] p-3 bg-blue-400 hover:bg-blue-600 text-white">Submit</button>
 
-                        <div>
-                            <input type="checkbox" id="html" name="html"
-                                value="scalses"
-                                onChange={(e) => updateFormData(e.target.value, 'tags', e.target.checked)} />
-                            <label htmlFor="html">Html</label>
-                        </div>
+            </form>
 
-                        <div>
-                            <input type="checkbox" id="css" name="css"
-                                value="css"
-                                onChange={(e) => updateFormData(e.target.value, 'tags', e.target.checked)} />
-                            <label htmlFor="css">Css</label>
-                        </div>
-
-                        <div>
-                            <input type="checkbox" id="js" name="js"
-                                value="js"
-                                onChange={(e) => updateFormData(e.target.value, 'tags', e.target.checked)} />
-                            <label htmlFor="js">Js</label>
-                        </div>
-
-                        <div>
-                            <input type="checkbox" id="sass" name="sass"
-                                value="sass"
-                                onChange={(e) => updateFormData(e.target.value, 'tags', e.target.checked)} />
-                            <label htmlFor="sass">Sass</label>
-                        </div>
-
-                    </fieldset>
-                    
-                    <button className=" w-[100px] p-3 bg-blue-400 hover:bg-blue-600 text-white">Submit</button>
-                </form>
-
-                <hr className="my-10"/>
-
-                <div className="mt-10">
-
-                {postList.length > 0 ? (
-                    
-                        <div className="flex flex-col gap-3 border">
-                            {postList.map((post, i) => (
-                                <div key={i}>
-                                    <h1>TITLE: {post.title}</h1>
-                                    <p>CONTENT: {post.content}</p>
-                                    <img src={post.image} alt="" />
-                                    <p>CATEGORY: {post.category}</p>
-                                    <h3>TAGS:
-                                        {post.tags.map((tag) => (
-                                            <li>{tag}</li>
-                                        ))}
-                                    </h3>
-                                    <button className="p-1 bg-red-500 text-white mt-5"
-                                    onClick={() => removePost(i)}>Delete</button>
-
-                                </div>
-                            ))}
-
-                        </div>
-                    ) : (
-                    <h2 className="text-center">Non sono presenti elementi nel menù</h2>
-                    )}
-
-                </div>
-
-            </div>
-
+        </div>
     )
 }

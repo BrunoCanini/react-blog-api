@@ -1,13 +1,18 @@
-import TheForm from './TheForm'
+import { useState } from 'react';
 import TheCall from './TheCall'
-import TheForm2 from './TheForm2'
+import TheForm from './TheForm'
 
 export default function TheMain(){
+
+    const [posts, setPosts] = useState([]);
+
+    console.log(posts)
+
+
     return(
         <div>
-            {/* < TheForm /> */}
-            < TheForm2 />
-            < TheCall />
+            < TheForm posts={posts} setPosts={setPosts} />
+            < TheCall posts={posts} setPosts={setPosts} />
         </div>
     )
 }

@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 
-export default function TheCall(){
+export default function TheCall(props){
 
-const [posts, setPosts] = useState([]);
+// const [posts, setPosts] = useState([]);
 
 async function callPosts() {
     const data = await (await fetch("http://localhost:3000/posts")).json()
-    setPosts(data)
+    props.setPosts(data)
 }
 
 useEffect(() => {
@@ -16,7 +16,7 @@ useEffect(() => {
     return(
         
         <div className="flex flex-col gap-3 mx-auto pt-10 w-[600px]">
-                {posts.map((post, i) => (
+                {props.posts.map((post, i) => (
                     <PostSection key={i} post={post}></PostSection>
                 ))}
         </div>
@@ -29,7 +29,7 @@ function PostSection({post}){
 
         <div>
             <h1 className="font-bold">{post.title}</h1>
-            <img src={post.image} alt="" />
+            <img className="w-full h-[300px] object-cover" src={post.image} alt="" />
             <p className="font-medium">{post.content}</p>
             <ul>
                 {post.tags.map((tag, i) => (
